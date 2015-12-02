@@ -1,0 +1,74 @@
+﻿-- READ ME
+--KOPIERA DEN HÄR TEXTFILEN IN TILL EN EXECUTE QUERY I SQL SERVER.
+
+-- =============================================
+-- Create database template
+-- =============================================
+USE master
+GO
+
+-- Drop the database if it already exists
+IF  EXISTS (
+	SELECT name 
+		FROM sys.databases 
+		WHERE name = N'MessagesAteaGLobalServices'
+)
+DROP DATABASE MessagesAteaGLobalServices
+GO
+
+CREATE DATABASE MessagesAteaGLobalServices
+GO
+
+-- =========================================
+-- Create table template
+-- =========================================
+USE MessagesAteaGLobalServices
+GO
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Messages] (
+    [DateAndTime]  DATETIME NOT NULL,
+    [Message] VARCHAR (MAX) NOT NULL
+);
+
+
+-- ==========================================================
+-- Create Stored Procedure Template for Windows Azure SQL Database
+-- ==========================================================
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE SP_logging
+@Message varchar(250),
+@DateAndTime varchar (50)
+
+
+AS
+BEGIN
+BEGIN TRY
+ 
+BEGIN TRANSACTION [myTran]
+  
+insert into  Messages(DateAndTime,MessagesAteaGLobalServices.Message)
+values(@DateAndTime,@Message)
+
+COMMIT TRANSACTION [myTran]
+END TRY
+
+BEGIN CATCH
+
+if @Message = null
+begin
+ ROLLBACK TRANSACTION [myTran]
+end
+END CATCH
+
+END
+GO
